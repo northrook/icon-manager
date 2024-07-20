@@ -1,0 +1,33 @@
+{
+  "name": "northrook/icon-manager",
+  "type": "library",
+  "description": "A PHP package for generating and managing SVG icons.",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "Northrook\\": ""
+    }
+  },
+  "authors": [
+    {
+      "name": "Martin",
+      "email": "mn@northrook.com"
+    }
+  ],
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "require": {
+    "php": ">=8.2",
+    "northrook/core": "dev-main",
+    "northrook/html-element": "dev-main",
+    "northrook/filesystem": "dev-main",
+    "northrook/compressor": "dev-main",
+    "northrook/persistent-storage": "dev-main",
+    "northrook/support": "dev-main",
+    "northrook/minify": "dev-main",
+    "northrook/html": "dev-main"
+  },
+  "require-dev": {
+    "northrook/dev-env": "dev-main"
+  }
+}
