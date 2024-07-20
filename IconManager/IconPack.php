@@ -36,7 +36,9 @@ final readonly class IconPack implements \Countable
             return null;
         }
 
+        $name = "$this->name-$icon";
         $icon = $this->icons[ $this->keys[ $icon ] ];
+
 
         if ( is_array( $icon ) ) {
             $innerHtml  = \array_shift( $icon );
@@ -47,7 +49,7 @@ final readonly class IconPack implements \Countable
             $attributes = $this->attributes;
         }
 
-        return new SVG( $attributes, $innerHtml );
+        return new SVG( [ 'class' => "icon $name", ... $attributes ], $innerHtml );
     }
 
 
