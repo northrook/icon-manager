@@ -4,6 +4,7 @@ namespace Northrook\IconManager\Latte;
 
 use Latte;
 use Northrook\IconManager;
+use Northrook\Logger\Log;
 
 class IconManagerExtension extends Latte\Extension
 {
@@ -17,7 +18,13 @@ class IconManagerExtension extends Latte\Extension
     }
 
     public function getIcon( string $name ) : ?Latte\Runtime\HtmlStringable {
-        $icon = $this->iconManager->getIcon( $name );
+        try {
+            $icon = $this->iconManager->getIcon( $name );
+        }
+        catch ( \Exception $exception ) {
+            Log::exception( $exception );
+            return null;
+        }
         return $icon ? new Latte\Runtime\Html( $icon->toString() ) : null;
     }
 }
