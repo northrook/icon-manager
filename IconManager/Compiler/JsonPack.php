@@ -4,6 +4,7 @@ namespace Northrook\IconManager\Compiler;
 
 use Northrook\Filesystem\File;
 use Northrook\Logger\Log;
+use Northrook\Resource\Path;
 use function Northrook\arrayFilterRecursive;
 use function Northrook\escapeText;
 use function Northrook\escapeUrl;
@@ -12,15 +13,15 @@ class JsonPack extends IconPackCompiler
 {
     public function __construct(
         string $name,
-        File   $source,
+        Path   $source,
     ) {
         $this->iconPackName( $name );
         $this->parseJsonData( $source );
     }
 
-    private function parseJsonData( File $source ) : void {
+    private function parseJsonData( Path $source ) : void {
 
-        $iconify = json_decode( $source->read, true );
+        $iconify = \json_decode( $source->read, true );
 
         $icons  = $iconify[ 'icons' ] ?? false;
         $height = $iconify[ 'height' ] ?? false;

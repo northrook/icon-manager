@@ -4,7 +4,7 @@ declare ( strict_types = 1 );
 
 namespace Northrook\IconManager;
 
-use Northrook\HTML\Element\SVG;
+use Northrook\HTML\Element;
 
 final readonly class IconPack implements \Countable
 {
@@ -30,7 +30,7 @@ final readonly class IconPack implements \Countable
         return $this->icons[ $this->getKey( $icon ) ] ?? null;
     }
 
-    public function getElement( string $icon ) : ?SVG {
+    public function getElement( string $icon ) : ?Element {
 
         if ( !$this->has( $icon ) ) {
             return null;
@@ -49,7 +49,7 @@ final readonly class IconPack implements \Countable
             $attributes = $this->attributes;
         }
 
-        return new SVG( [ 'class' => "icon $name", ... $attributes ], $innerHtml );
+        return new Element( 'svg', [ 'class' => "icon $name", ... $attributes ], $innerHtml );
     }
 
 

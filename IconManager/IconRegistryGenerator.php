@@ -11,7 +11,7 @@ use Northrook\Filesystem\File;
 use Northrook\IconManager\Compiler\DirectoryPack;
 use Northrook\IconManager\Compiler\JsonPack;
 use Northrook\Logger\Log;
-use Symfony\Component\VarExporter\Internal\Registry;
+use Northrook\Resource\Path;
 use function Northrook\hashKey;
 use function Northrook\normalizeKey;
 use function Northrook\normalizePath;
@@ -59,7 +59,7 @@ class IconRegistryGenerator
     public function compile() : IconRegistryGenerator {
         Log::info( 'Started compiling icon packs.' );
         foreach ( $this->sources as $name => $path ) {
-            $source = new File( $path );
+            $source = new Path( $path );
             if ( !$source->exists ) {
                 Log::warning( "The '$name' icon source does not exist. " );
                 continue;
@@ -80,8 +80,8 @@ class IconRegistryGenerator
         return $this;
     }
 
-    private function saveSerializedIconPack( IconPack $iconPack ) : File {
-        $path = new File( "$this->iconStorageDirectory/icons/$iconPack->name.iconpack" );
+    private function saveSerializedIconPack( IconPack $iconPack ) : Path {
+        $path = new Path( "$this->iconStorageDirectory/icons/$iconPack->name.iconpack" );
         $pack = \serialize( $iconPack );
 
         File::save( $path, $pack );

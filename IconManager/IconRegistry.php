@@ -4,7 +4,8 @@ namespace Northrook\IconManager;
 
 use Northrook\Exception\IconNotFoundException;
 use Northrook\Filesystem\File;
-use Northrook\HTML\Element\SVG;
+use Northrook\HTML\Element;
+use Northrook\Resource\Path;
 use Northrook\Storage\PersistentEntity;
 
 final class IconRegistry extends PersistentEntity
@@ -25,7 +26,7 @@ final class IconRegistry extends PersistentEntity
     }
 
     private function loadSerializedIconPack( string $name ) : IconPack {
-        $path = new File( $this->data[ 'manifest' ][ $name ] );
+        $path = new Path( $this->data[ 'manifest' ][ $name ] );
 
         if ( !$path->isReadable ) {
             throw new IconNotFoundException();
@@ -34,7 +35,7 @@ final class IconRegistry extends PersistentEntity
         return \unserialize( $path->read );
     }
 
-    public function getIconElement( string $pack, string $key ) : ?SVG {
+    public function getIconElement( string $pack, string $key ) : ?Element {
         return $this->data[ 'icons' ][ $pack ][ $key ] ??= $this->getIconPack( $pack )->getElement( $key );
     }
 
@@ -54,7 +55,7 @@ final class IconRegistry extends PersistentEntity
         return $this->getIconPack( $icon->pack )->has( $icon->key );
     }
 
-    public function get( $packName ) : ?SVG {
+    public function get( $packName ) : ?Element {
         $icon = $this->icon( $packName );
         return $this->getIconElement( $icon->pack, $icon->key );
     }

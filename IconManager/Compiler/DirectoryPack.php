@@ -3,10 +3,9 @@
 namespace Northrook\IconManager\Compiler;
 
 use Northrook\Filesystem\File;
-use Northrook\HTML\Element\SVG;
 use Northrook\HTML\HtmlNode;
 use Northrook\IconManager\IconRegistryGenerator;
-use Northrook\Support\Html;
+use Northrook\Resource\Path;
 
 /**
  * @internal
@@ -16,7 +15,7 @@ final class DirectoryPack extends IconPackCompiler
 
     public function __construct(
         string $name,
-        File   $source,
+        Path   $source,
         int    $size,
     ) {
         $this->attributes[ 'height' ] = $size;
@@ -25,7 +24,7 @@ final class DirectoryPack extends IconPackCompiler
         $this->parseDirectoryData( $source );
     }
 
-    private function parseDirectoryData( File $source ) : void {
+    private function parseDirectoryData( Path $source ) : void {
 
         foreach ( $this->getIconFiles( $source ) as $source ) {
             if ( !$source->isReadable ) {
@@ -58,25 +57,26 @@ final class DirectoryPack extends IconPackCompiler
         $attributes = \array_intersect_key( $attributes, \array_flip( [ 'height', 'width', 'viewbox' ] ) );
 
         // Try using absolute size values
-        $height = (int) ( $attributes[ 'height' ] ?? null ) ?: null;
-        $width  = (int) ( $attributes[ 'width' ] ?? null ) ?: null;
+        $height  = (int) ( $attributes[ 'height' ] ?? null ) ?: null;
+        $width   = (int) ( $attributes[ 'width' ] ?? null ) ?: null;
+        $viewbox = $this->parseViewbox( $attributes );
 
         // If we hae a viewbox, parse it
-        if ( isset( $attributes[ 'viewbox' ] ) ) {
-            // Retrieve the height and width values
-            $viewbox = SVG::parseViewbox( $attributes );
+        if ( $viewbox ) {
 
-            if ( $height && $viewbox && $height !== $viewbox[ 'height' ] ) {
+            if ( $height && $height !== $viewbox[ 'height' ] ) {
                 throw new \LogicException(
-                    "Invalid icon height declaration: height: $height !== viewbox: {$viewbox['height']}",
+                    "Invalid icon height declaration: height: $height !== viewbox: 
+                    {$viewbox['height']}",
                 );
             }
 
-            if ( $width && $viewbox && $width !== $viewbox[ 'width' ] ) {
+            if ( $width && $width !== $viewbox[ 'width' ] ) {
                 throw new \LogicException(
                     "Invalid icon width declaration: width: $width !== viewbox: {$viewbox['width']}",
                 );
             }
+
             $height ??= $viewbox[ 'height' ];
             $width  ??= $viewbox[ 'width' ];
         }
@@ -93,16 +93,42 @@ final class DirectoryPack extends IconPackCompiler
 
 
     /**
-     * Retrieve an array of normalized {@see File} paths to all `.svg` files in the `$source` directory.
+     * Retrieve an array of normalized {@see Path}s to all `.svg` files in the `$source` directory.
      *
-     * @param File  $source
+     * @param Path  $source
      *
-     * @return File[]
+     * @return Path[]
      */
-    private function getIconFiles( File $source ) : array {
+    private function getIconFiles( Path $source ) : array {
         return \array_map(
-            callback : static fn ( $path ) => new File( $path ),
+            callback : static fn ( $path ) => new Path( $path ),
             array    : \glob( "$source->path/*.svg" ) ?? [],
+        );
+    }
+
+    /**
+     * @param array  $attributes
+     *
+     * @return null|array{'min-x':int, 'min-y':int, 'width':int, 'height':int }
+     */
+    private function parseViewbox( array $attributes ) : ?array {
+
+        if ( !isset( $attributes[ 'viewbox' ] ) ) {
+            return null;
+        }
+
+        $viewbox = \explode( ' ', $attributes[ 'viewbox' ] );
+
+        if ( \count( $viewbox ) !== 4 ) {
+            throw new \LogicException(
+                'The SVG viewbox attribute is malformed. It should contain 4 values, but ' .
+                \count( $viewbox, ) . ' was found.',
+            );
+        }
+
+        return \array_combine(
+            [ 'min-x', 'min-y', 'width', 'height' ],
+            \array_map( 'intval', $viewbox ),
         );
     }
 }
