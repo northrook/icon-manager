@@ -11,19 +11,22 @@ use function Northrook\{normalizeKey, normalizePath};
 
 readonly class IconManager
 {
-    public function __construct( private IconRegistry $iconRegistry ) {}
+    public function __construct(
+        private IconRegistry $iconRegistry,
+        private ?string      $defaultIconPack = null,
+    ) {}
 
-    private function name( string $resolve ) : object {
+    private function name( string $resolve ) : array {
 
         if ( \str_contains( $resolve, ':' ) ) {
             [ $pack, $key ] = \explode( ':', $resolve, 2 );
         }
         else {
-            $key  = null;
+            $key  = $this->defaultIconPack;
             $pack = $resolve;
         }
 
-        return (object) [
+        return [
             'pack' => $key,
             'key'  => $pack,
         ];
@@ -37,17 +40,17 @@ readonly class IconManager
     // This is a great example of where a more dynamic return/reporting system could be useful.
     // We could also just do the responsible thing and throw an error.
     public function getIcon( string $name ) : ?Element {
-        return $this->iconRegistry->get( $name );
+        return $this->iconRegistry->getIconElement( ... $this->name( $name ) );
     }
 
     /**
      * @param string  $name
      *
-     * @return SVG
+     * @return Element
      * @throws IconNotFoundException if no icon matches the $name
      */
     public function getIconAssertive( string $name ) : Element {
-        return $this->iconRegistry->get( $name ) ?? throw new IconNotFoundException(
+        return $this->iconRegistry->getIconElement( ... $this->name( $name ) ) ?? throw new IconNotFoundException(
             "The Icon '{$name}' does not exist.",
         );
     }
